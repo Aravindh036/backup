@@ -84,8 +84,8 @@ for (var i in json) {
 
 
 AWS.config.update({
-  accessKeyId: "AKIAIAIRRUW66NKA563A",
-  secretAccessKey: "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"
+  accessKeyId: "<key>",
+  secretAccessKey: "<key>"
 });
 
 
