@@ -26,6 +26,9 @@ var json =[
     }
 ];
 
+var downloadLocation='';
+var uploaded = false;
+
 getFilesRecursive = (folder, callback) => {
   var fileContents = fs.readdirSync(folder);
   var fileTree = [];
@@ -92,12 +95,6 @@ app.get('/getJson', (req, res) => {
   res.send(drive);
 })
 
-app.post("/uploadFile", (req, res) => {
-  console.log(req.body);
-});
-
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
-
 
 
 AWS.config.update({
@@ -105,20 +102,35 @@ AWS.config.update({
   secretAccessKey: "<key>"
 });
 
-
-var s3 = new AWS.S3();
-var filePath = "but.mkv";
-
-s3.upload({  Bucket: 'remote-file-share',  Body : fs.createReadStream(filePath),  Key : filePath }, function (err, data) {
-  //handle error
-  if (err) {
-    // console.log("Error", err);
-  }
-
-  //success
-  if (data) {
-    // console.log("Uploaded in:", data.Location);
-  }
-}).on('httpUploadProgress', function(evt) {  
-  // console.log('Completed ' +  (evt.loaded * 100 / evt.total).toFixed() +   '% of upload');  
+app.post("/uploadFile", (req, res) => {  
+  var s3 = new AWS.S3();
+  var filePath = req.body.filepath;
+  var file = req.body.file;
+  console.log(filePath);
+  s3.upload({  Bucket: 'remote-file-share',ACL:'public-read',  Body : fs.createReadStream(filePath),  Key : file }, function (err, data) {
+    if (err) {
+      console.log("Error", err);
+    }
+    if (data) {
+      console.log("Uploaded in:", data.Location);
+      downloadLocation = data.Location;
+      uploaded = true;
+      res.send({"location":data.Location});
+    }
+  }).on('httpUploadProgress', function(evt) {  
+    console.log('Completed ' +  (evt.loaded * 100 / evt.total).toFixed() +   '% of upload');  
+  });
 });
+
+
+app.get('/getfile',(req,res)=>{
+  if(uploaded){
+    uploaded = false;
+    res.send({"location":downloadLocation});
+  }
+  res.send({"location":"not uploaded yet"});
+})
+
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+
+
