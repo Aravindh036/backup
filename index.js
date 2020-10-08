@@ -3,7 +3,11 @@ var AWS = require('aws-sdk');
 var path = require('path');
 let bodyParser = require('body-parser');
 const express = require('express')
-
+var QRCode = require('qrcode')
+ 
+QRCode.toString('I am a pony!',{type:'terminal'}, function (err, url) {
+  console.log(url)
+})
 const app = express()
 const port = 3300
 console.log("Initialize indexing....");
@@ -17,7 +21,7 @@ var json =[
       size: 7823458304,
       mountpoints: [
         {
-          path: "C:/Users/Aravindh/Downloads"
+          path: "C:/Users/Eniyanilavan/Downloads"
         }
       ],
       raw: "\\\\.\\PHYSICALDRIVE1",
